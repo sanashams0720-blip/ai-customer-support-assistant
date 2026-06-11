@@ -2,9 +2,13 @@
 
 **Designed and Developed by Sana Shams**
 
+## 📸 Application Preview
+
+![AI Customer Support Assistant](screenshot.png)
+
 A Retrieval-Augmented Generation (RAG) based customer support assistant built using LangChain, FAISS, Sentence Transformers, and Streamlit.
 
-The application enables users to ask customer support questions in natural language and retrieves the most relevant information from a knowledge base using semantic search.
+The application enables users to ask customer support questions in natural language and retrieves the most relevant information from a knowledge base using semantic search and vector embeddings.
 
 ---
 
@@ -12,12 +16,36 @@ The application enables users to ask customer support questions in natural langu
 
 * Semantic search using vector embeddings
 * FAISS vector database for efficient retrieval
-* Document chunking using LangChain
+* Document chunking and indexing using LangChain
 * Interactive Streamlit web interface
 * Knowledge-base driven responses
 * Source attribution for retrieved answers
+* Fast and scalable retrieval pipeline
 * Clean and responsive UI
 * Ready for LLM integration (Llama 3 / OpenAI)
+
+---
+
+## 🏗️ Architecture
+
+```text
+User Question
+      │
+      ▼
+Streamlit Interface
+      │
+      ▼
+LangChain Retriever
+      │
+      ▼
+FAISS Vector Store
+      │
+      ▼
+Relevant Knowledge Chunks
+      │
+      ▼
+Response Display
+```
 
 ---
 
@@ -55,6 +83,7 @@ ai-customer-support-assistant/
 │   ├── index.faiss
 │   └── index.pkl
 │
+├── screenshot.png
 ├── app.py
 ├── ingest.py
 ├── query.py
@@ -67,7 +96,7 @@ ai-customer-support-assistant/
 
 ## ⚙️ How It Works
 
-### Step 1: Knowledge Base Creation
+### 1. Knowledge Base Creation
 
 Customer support FAQs are stored inside:
 
@@ -75,29 +104,29 @@ Customer support FAQs are stored inside:
 docs/company_faq.txt
 ```
 
-### Step 2: Document Processing
+### 2. Document Processing
 
-LangChain loads the document and splits it into smaller chunks.
+LangChain loads the FAQ document and splits it into manageable chunks.
 
-### Step 3: Embedding Generation
+### 3. Embedding Generation
 
-Sentence Transformers converts text chunks into vector embeddings.
+Sentence Transformers converts each text chunk into vector embeddings.
 
-### Step 4: Vector Storage
+### 4. Vector Storage
 
-FAISS stores the embeddings for efficient semantic search.
+FAISS stores the embeddings for efficient semantic retrieval.
 
-### Step 5: User Query
+### 5. User Query
 
-The user enters a question through the Streamlit interface.
+Users submit questions through the Streamlit interface.
 
-### Step 6: Retrieval
+### 6. Retrieval
 
-Relevant document chunks are retrieved based on semantic similarity.
+The retriever finds the most relevant document chunks based on semantic similarity.
 
-### Step 7: Response Generation
+### 7. Response Generation
 
-The application returns the most relevant answer and displays the supporting source documents.
+The application returns the most relevant answer and displays supporting source documents.
 
 ---
 
@@ -115,7 +144,7 @@ pip install -r requirements.txt
 python ingest.py
 ```
 
-### Launch the Streamlit App
+### Launch the Streamlit Application
 
 ```bash
 streamlit run app.py
@@ -128,10 +157,11 @@ streamlit run app.py
 * Llama 3 integration using Ollama
 * OpenAI API integration
 * Conversational memory
-* Chat-style interface
+* Chat-style user interface
 * PDF document ingestion
 * Multi-document knowledge base
-* Source citations with confidence scores
+* Confidence scoring for retrieved answers
+* Conversation history tracking
 
 ---
 
@@ -139,4 +169,4 @@ streamlit run app.py
 
 **Sana Shams**
 
-Built as part of a hands-on Generative AI and Retrieval-Augmented Generation (RAG) learning project using LangChain, FAISS, and Streamlit.
+Built as a hands-on Generative AI project to demonstrate Retrieval-Augmented Generation (RAG), semantic search, vector databases, and modern AI application development using LangChain, FAISS, and Streamlit.
