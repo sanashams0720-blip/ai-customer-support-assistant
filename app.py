@@ -1,6 +1,15 @@
 import streamlit as st
+from dotenv import load_dotenv
+
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
+
+# --------------------------------------------------
+# Load Environment Variables
+# --------------------------------------------------
+
+load_dotenv()
 
 # --------------------------------------------------
 # Page Configuration
@@ -16,16 +25,16 @@ st.set_page_config(
 # Header
 # --------------------------------------------------
 
-st.title("AI Customer Support Assistant")
+st.title("🤖 AI Customer Support Assistant")
 
 st.caption(
-    "Built with LangChain • FAISS • Sentence Transformers • Streamlit"
+    "Built with LangChain • FAISS • Llama 3 • Groq • Streamlit"
 )
 
 st.info(
     """
-    This application uses Retrieval-Augmented Generation (RAG) principles
-    to search a knowledge base and return relevant customer support information.
+    This application uses Retrieval-Augmented Generation (RAG)
+    to search a knowledge base and generate AI-powered responses.
     """
 )
 
@@ -67,6 +76,14 @@ retriever = vectorstore.as_retriever(
 )
 
 # --------------------------------------------------
+# Load Groq Llama 3
+# --------------------------------------------------
+
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile"
+)
+
+# --------------------------------------------------
 # User Question
 # --------------------------------------------------
 
@@ -74,53 +91,38 @@ question = st.text_input(
     "Have a query? Ask me!"
 )
 
-
 # --------------------------------------------------
-# Search & Answer
+# Search & Generate Answer
 # --------------------------------------------------
 
 if question:
 
-    results = retriever.invoke(question)
+    docs = retriever.invoke(question)
 
-    top_result = results[0].page_content.lower()
+    context = "\n\n".join(
+        [doc.page_content for doc in docs]
+    )
 
-    # Simple answer generation
-    if "delivery address" in top_result:
-        answer = (
-            "Yes, you can change your delivery address "
-            "before the order is shipped."
-        )
+    prompt = f"""
+You are a helpful customer support assistant.
 
-    elif "refund" in top_result:
-        answer = (
-            "Customers can request a refund "
-            "within 30 days of purchase."
-        )
+Answer ONLY using the provided context.
 
-    elif "shipping takes" in top_result:
-        answer = (
-            "Standard shipping typically takes "
-            "5–7 business days."
-        )
+If the answer is not available in the context,
+say:
 
-    elif "international shipping" in top_result:
-        answer = (
-            "Yes, we offer international shipping "
-            "to over 50 countries worldwide."
-        )
+'I could not find that information in the knowledge base.'
 
-    elif "support hours" in top_result:
-        answer = (
-            "Our support team is available Monday "
-            "through Friday from 9 AM to 6 PM IST."
-        )
+Context:
+{context}
 
-    else:
-        answer = (
-            "I found relevant information in the knowledge base. "
-            "Please review the sources below."
-        )
+Question:
+{question}
+
+Answer:
+"""
+
+    response = llm.invoke(prompt)
 
     # --------------------------------------------------
     # Display Answer
@@ -128,15 +130,15 @@ if question:
 
     st.subheader("Answer")
 
-    st.success(answer)
+    st.success(response.content)
 
     # --------------------------------------------------
-    # Sources
+    # Display Sources
     # --------------------------------------------------
 
-    st.subheader(f"Sources ({len(results)})")
+    st.subheader(f"Sources ({len(docs)})")
 
-    for i, doc in enumerate(results, start=1):
+    for i, doc in enumerate(docs, start=1):
 
         with st.expander(f"Source {i}"):
 
@@ -148,6 +150,4 @@ if question:
 
 st.divider()
 
-st.caption(
-    "Built by Sana Shams"
-)
+st.caption("🚀 Built by Sana Shams")
