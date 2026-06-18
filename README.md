@@ -6,23 +6,24 @@
 
 ![AI Customer Support Assistant](screenshot.png)
 
-A Retrieval-Augmented Generation (RAG) based customer support assistant built using LangChain, FAISS, Sentence Transformers, and Streamlit.
+A Retrieval-Augmented Generation (RAG) based customer support assistant built using LangChain, FAISS, Sentence Transformers, Groq, Llama 3, and Streamlit.
 
-The application enables users to ask customer support questions in natural language and retrieves the most relevant information from a knowledge base using semantic search and vector embeddings.
+The application enables users to ask customer support questions in natural language, retrieves the most relevant information from a knowledge base using semantic search, and generates context-aware answers using Llama 3.
 
 ---
 
 ## 🚀 Features
 
+* Retrieval-Augmented Generation (RAG)
 * Semantic search using vector embeddings
 * FAISS vector database for efficient retrieval
 * Document chunking and indexing using LangChain
+* AI-generated responses powered by Llama 3
+* Groq-powered low-latency inference
 * Interactive Streamlit web interface
-* Knowledge-base driven responses
 * Source attribution for retrieved answers
-* Fast and scalable retrieval pipeline
+* Context-aware question answering
 * Clean and responsive UI
-* Ready for LLM integration (Llama 3 / OpenAI)
 
 ---
 
@@ -44,7 +45,13 @@ FAISS Vector Store
 Relevant Knowledge Chunks
       │
       ▼
-Response Display
+Llama 3 (Groq)
+      │
+      ▼
+AI Generated Response
+      │
+      ▼
+Source Attribution
 ```
 
 ---
@@ -56,7 +63,10 @@ Response Display
 * FAISS
 * Sentence Transformers
 * Hugging Face Embeddings
+* Groq API
+* Llama 3
 * Streamlit
+* Python Dotenv
 
 ---
 
@@ -84,6 +94,7 @@ ai-customer-support-assistant/
 │   └── index.pkl
 │
 ├── screenshot.png
+├── .env
 ├── app.py
 ├── ingest.py
 ├── query.py
@@ -124,9 +135,11 @@ Users submit questions through the Streamlit interface.
 
 The retriever finds the most relevant document chunks based on semantic similarity.
 
-### 7. Response Generation
+### 7. AI Response Generation
 
-The application returns the most relevant answer and displays supporting source documents.
+Retrieved context is sent to Llama 3 through the Groq API.
+
+The model generates a contextual answer grounded in the retrieved documents while displaying the supporting source information.
 
 ---
 
@@ -144,7 +157,15 @@ pip install -r requirements.txt
 python ingest.py
 ```
 
-### Launch the Streamlit Application
+### Add Environment Variables
+
+Create a `.env` file:
+
+```env
+GROQ_API_KEY=your_api_key_here
+```
+
+### Launch the Application
 
 ```bash
 streamlit run app.py
@@ -154,14 +175,14 @@ streamlit run app.py
 
 ## 🔮 Future Enhancements
 
-* Llama 3 integration using Ollama
-* OpenAI API integration
 * Conversational memory
-* Chat-style user interface
+* Chat-style interface
 * PDF document ingestion
 * Multi-document knowledge base
-* Confidence scoring for retrieved answers
-* Conversation history tracking
+* Cloud deployment
+* Confidence scoring
+* Conversation history
+* User authentication
 
 ---
 
@@ -169,4 +190,4 @@ streamlit run app.py
 
 **Sana Shams**
 
-Built as a hands-on Generative AI project to demonstrate Retrieval-Augmented Generation (RAG), semantic search, vector databases, and modern AI application development using LangChain, FAISS, and Streamlit.
+Built as a hands-on Generative AI project demonstrating Retrieval-Augmented Generation (RAG), semantic search, vector databases, and LLM-powered question answering using LangChain, FAISS, Groq, Llama 3, and Streamlit.
