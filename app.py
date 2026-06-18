@@ -5,26 +5,17 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 
-# --------------------------------------------------
-# Load Environment Variables
-# --------------------------------------------------
-
+# Load environment variables
 load_dotenv()
 
-# --------------------------------------------------
-# Page Configuration
-# --------------------------------------------------
-
+# Page configuration
 st.set_page_config(
     page_title="AI Customer Support Assistant",
     page_icon="🤖",
     layout="wide"
 )
 
-# --------------------------------------------------
 # Header
-# --------------------------------------------------
-
 st.title("🤖 AI Customer Support Assistant")
 
 st.caption(
@@ -32,10 +23,8 @@ st.caption(
 )
 
 st.info(
-    """
-    This application uses Retrieval-Augmented Generation (RAG)
-    to search a knowledge base and generate AI-powered responses.
-    """
+    "This application uses Retrieval-Augmented Generation (RAG) "
+    "to search a knowledge base and generate AI-powered responses."
 )
 
 st.markdown("""
@@ -49,10 +38,7 @@ st.markdown("""
 - Support Hours
 """)
 
-# --------------------------------------------------
 # Load Vector Store
-# --------------------------------------------------
-
 @st.cache_resource
 def load_vectorstore():
 
@@ -75,79 +61,102 @@ retriever = vectorstore.as_retriever(
     search_kwargs={"k": 2}
 )
 
-# --------------------------------------------------
-# Load Groq Llama 3
-# --------------------------------------------------
-
+# Load Groq Llama Model
 llm = ChatGroq(
     model="llama-3.3-70b-versatile"
 )
 
-# --------------------------------------------------
-# User Question
-# --------------------------------------------------
+# Session memory
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-question = st.text_input(
-    "Have a query? Ask me!"
+# Display previous messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Chat input
+question = st.chat_input(
+    "Ask a customer support question..."
 )
 
-# --------------------------------------------------
-# Search & Generate Answer
-# --------------------------------------------------
-
+# Process question
 if question:
 
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(question)
+
+    st.session_state.messages.append(
+        {
+            "role": "user",
+            "content": question
+        }
+    )
+
+    # Retrieve relevant documents
     docs = retriever.invoke(question)
 
     context = "\n\n".join(
         [doc.page_content for doc in docs]
     )
 
+    # Conversation history
+    history = ""
+
+    for msg in st.session_state.messages[-6:]:
+        history += f"{msg['role']}: {msg['content']}\n"
+
+    # Prompt
     prompt = f"""
 You are a helpful customer support assistant.
 
-Answer ONLY using the provided context.
+Use both the conversation history and the knowledge base context.
 
-If the answer is not available in the context,
-say:
+Rules:
+1. Answer only using the context provided.
+2. Consider previous messages for follow-up questions.
+3. If the answer is not available, say:
+   "I could not find that information in the knowledge base."
 
-'I could not find that information in the knowledge base.'
+Conversation History:
+{history}
 
-Context:
+Knowledge Base Context:
 {context}
 
-Question:
+Current Question:
 {question}
 
 Answer:
 """
 
+    # Generate response
     response = llm.invoke(prompt)
 
-    # --------------------------------------------------
-    # Display Answer
-    # --------------------------------------------------
+    answer = response.content
 
-    st.subheader("Answer")
+    # Display assistant message
+    with st.chat_message("assistant"):
+        st.markdown(answer)
 
-    st.success(response.content)
+    st.session_state.messages.append(
+        {
+            "role": "assistant",
+            "content": answer
+        }
+    )
 
-    # --------------------------------------------------
-    # Display Sources
-    # --------------------------------------------------
+    # Sources
+    with st.expander("📚 View Sources"):
 
-    st.subheader(f"Sources ({len(docs)})")
+        for i, doc in enumerate(docs, start=1):
 
-    for i, doc in enumerate(docs, start=1):
-
-        with st.expander(f"Source {i}"):
-
+            st.markdown(f"**Source {i}**")
             st.write(doc.page_content)
+            st.divider()
 
-# --------------------------------------------------
 # Footer
-# --------------------------------------------------
-
 st.divider()
 
 st.caption("🚀 Built by Sana Shams")
